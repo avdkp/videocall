@@ -1,7 +1,7 @@
 var express = require('express.io');
 var app = express();
 app.http().io();
-var PORT = 3000;
+var PORT = 5000;
 console.log('server started on port ' + PORT);
 
 app.use(express.static(__dirname + '/public'));
