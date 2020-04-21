@@ -7,6 +7,7 @@ console.log('server started on port ' + PORT);
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function(req, res){
+    console.log("serving request..."+ JSON.stringify(req))
     res.render('index.ejs');
 });
 

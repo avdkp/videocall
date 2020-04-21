@@ -3,11 +3,14 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "4.x",
-    "ejs": "2.x",
-    "express.io": "1.x",
+    "bufferutil": "^4.0.1",
     "coffee-script": "~1.6.3",
-    "connect": "3.7.0"
+    "connect": "3.7.0",
+    "ejs": "2.x",
+    "express": "^4.17.1",
+    "express.io": "1.x",
+    "utf-8-validate": "^5.0.2",
+    "ws": "^7.2.3"
   },
   "scripts": {
     "start": "node server.js"
@@ -20,5 +23,6 @@
   "devDependencies": {},
   "author": "",
   "license": "ISC",
+  "keywords": [],
   "description": ""
 }
