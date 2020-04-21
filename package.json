@@ -1,12 +1,24 @@
 {
-	"name": "intro-webrtc",
-	"version": "0.0.1",
-	"private": true,
-	"dependencies": {
-		"express": "4.x",
-		"ejs": "2.x",
-		"express.io": "1.x",
-		"coffee-script": "~1.6.3",
-		"connect": "3.7.0"
-	}
+  "name": "intro-webrtc",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "4.x",
+    "ejs": "2.x",
+    "express.io": "1.x",
+    "coffee-script": "~1.6.3",
+    "connect": "3.7.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": "10.19.0",
+    "npm": "6.13.4"
+  },
+  "main": "server.js",
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }
