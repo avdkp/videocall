@@ -82,16 +82,18 @@
         // once remote stream arrives, show it in the remote video element
         rtcPeerConn.ontrack = function (evt) {
             displaySignalMessage("going to add their stream...");
+            window.theirstream = evt;
             theirVideoArea.srcObject = evt.streams[0];
         };
 
         // get a local stream, show it in our video tag and add it to be sent
-        navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia;
+        navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
         navigator.getUserMedia({
             'audio': true,
             'video': true
         }, function (stream) {
             displaySignalMessage("going to display my stream...");
+            window.mystream = stream;
             myVideoArea.srcObject = stream;
             rtcPeerConn.addStream(stream);
         }, logError);
