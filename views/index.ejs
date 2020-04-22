@@ -6,22 +6,23 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-<video id="myVideoTag" autoplay></video>
+<video id="myVideoTag" muted autoplay></video>
 <video id="theirVideoTag" autoplay></video>
 <div>
-    <label>Your Name</label><input id="myName" type="text"/>
-    <label>Message</label><input id="myMessage" type="text"/>
-    <input id="sendMessage" type="submit"/>
-    <div id="chatArea">Message Output:<br></div>
+    <label>ROOM-ID</label><input id="roomID" type="text"/>
+    <input id="joinRoom" type="submit"/>
+
     <div id="signalingArea">Signaling Messages:<br></div>
 </div>
 
 <script>
     var myVideoArea = document.querySelector("#myVideoTag");
     var theirVideoArea = document.querySelector("#theirVideoTag");
+    var roomID = document.querySelector('#roomID');
+    var joinRoom = document.querySelector('#joinRoom');
 
-    var ROOM = 'chat_room';
-    var SIGNAL_ROOM = "signal_room";
+    var myRoom;
+
     var configuration = {
         'iceServers': [{
             'url': 'stun:stun.l.google.com:19302'
@@ -31,13 +32,26 @@
     var rtcPeerConn;
 
     io = io.connect();
-    io.emit('ready', SIGNAL_ROOM);
+    joinRoom.addEventListener('click', function () {
+        if(roomID.value && roomID.value !== myRoom) {
+            rtcPeerConn = null;
+            myVideoArea.srcObject = null;
+            theirVideoArea.srcObject = null;
+            myRoom = roomID.value;
+            io.emit('ready', roomID.value);
+            io.emit('signal', {"type": "user_here", "message": "Are you ready for a call?", "room": roomID.value});
+        } else {
+            alert("Enter room ID");
+        }
+    })
+
+
 
     //Send a first signaling message to anyone listening
     //This normally would be on a button click
-    io.emit('signal',{"type":"user_here", "message":"Are you ready for a call?", "room":SIGNAL_ROOM});
 
-    io.on('signaling_message', function(data) {
+
+    io.on('signaling_message', function (data) {
         displaySignalMessage("Signal received: " + data.type);
 
         //Setup the RTC Peer Connection object
@@ -53,8 +67,7 @@
                         rtcPeerConn.createAnswer(sendLocalDesc, logError);
                     }
                 }, logError);
-            }
-            else {
+            } else {
                 rtcPeerConn.addIceCandidate(new RTCIceCandidate(message.candidate));
             }
         }
@@ -69,7 +82,11 @@
         // send any ice candidates to the other peer
         rtcPeerConn.onicecandidate = function (evt) {
             if (evt.candidate)
-                io.emit('signal',{"type":"ice candidate", "message": JSON.stringify({ 'candidate': evt.candidate }), "room":SIGNAL_ROOM});
+                io.emit('signal', {
+                    "type": "ice candidate",
+                    "message": JSON.stringify({'candidate': evt.candidate}),
+                    "room": myRoom
+                });
             displaySignalMessage("completed that ice candidate...");
         };
 
@@ -89,13 +106,15 @@
         // get a local stream, show it in our video tag and add it to be sent
         navigator.getUserMedia = navigator.getUserMedia || navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
         navigator.getUserMedia({
-            'audio': true,
+            'audio': {echoCancellation: true},
             'video': true
         }, function (stream) {
             displaySignalMessage("going to display my stream...");
             window.mystream = stream;
             myVideoArea.srcObject = stream;
-            rtcPeerConn.addStream(stream);
+            stream.getTracks().forEach(track => {
+                rtcPeerConn.addTrack(track, stream)
+            })
         }, logError);
 
     }
@@ -103,7 +122,11 @@
     function sendLocalDesc(desc) {
         rtcPeerConn.setLocalDescription(desc, function () {
             displaySignalMessage("sending local description");
-            io.emit('signal',{"type":"SDP", "message": JSON.stringify({ 'sdp': rtcPeerConn.localDescription }), "room":SIGNAL_ROOM});
+            io.emit('signal', {
+                "type": "SDP",
+                "message": JSON.stringify({'sdp': rtcPeerConn.localDescription}),
+                "room": myRoom
+            });
         }, logError);
     }
 
@@ -111,11 +134,11 @@
         displaySignalMessage(error.name + ': ' + error.message);
     }
 
-    io.on('announce', function(data) {
+    io.on('announce', function (data) {
         displayMessage(data.message);
     });
 
-    io.on('message', function(data) {
+    io.on('message', function (data) {
         displayMessage(data.author + ": " + data.message);
     });
 
@@ -129,11 +152,10 @@
         console.log("=>" + message);
     }
 
-    sendMessage.addEventListener('click', function(ev) {
-        io.emit('send', {"author":myName.value, "message":myMessage.value, "room":ROOM});
-        ev.preventDefault();
-    }, false);
-
+    // sendMessage.addEventListener('click', function (ev) {
+    //     io.emit('send', {"author": myName.value, "message": myMessage.value, "room": ROOM});
+    //     ev.preventDefault();
+    // }, false);
 
 
 </script>
