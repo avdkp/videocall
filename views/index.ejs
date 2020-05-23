@@ -81,12 +81,12 @@
 
         // send any ice candidates to the other peer
         rtcPeerConn.onicecandidate = function (evt) {
-            if (evt.candidate)
-                io.emit('signal', {
-                    "type": "ice candidate",
-                    "message": JSON.stringify({'candidate': evt.candidate}),
-                    "room": myRoom
-                });
+            // if (evt.candidate)
+            //     io.emit('signal', {
+            //         "type": "ice candidate",
+            //         "message": JSON.stringify({'candidate': evt.candidate}),
+            //         "room": myRoom
+            //     });
             displaySignalMessage("completed that ice candidate...");
         };
 
