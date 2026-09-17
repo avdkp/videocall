@@ -16,7 +16,7 @@
     "start": "node server.js"
   },
   "engines": {
-    "node": "10.19.0",
+    "node": ">=14",
     "npm": "6.13.4"
   },
   "main": "server.js",
